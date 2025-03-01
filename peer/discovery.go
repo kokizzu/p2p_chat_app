@@ -13,8 +13,9 @@ func GetHostIPAddress() string {
 
 	if err != nil {
 		helper.DebugMessage <- err.Error()
+		panic(err)
 	}
 
-	helper.DebugMessage <- strings.Split(conn.LocalAddr().String(), ":")[0]
+	helper.DebugMessage <- strings.Split(conn.LocalAddr().String(), ":")[0] + " \n"
 	return strings.Split(conn.LocalAddr().String(), ":")[0]
 }

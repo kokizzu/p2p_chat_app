@@ -13,6 +13,7 @@ func GetOsHostName() string {
 
 	if err != nil {
 		DebugMessage <- err.Error()
+		panic(err)
 	}
 
 	return name
