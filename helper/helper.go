@@ -1,5 +1,19 @@
 package helper
 
+import "os"
+
 var (
-	DebugMessage = make(chan string, 0)
+	UserName     = ""
+	Port         = 8080
+	DebugMessage = make(chan string)
 )
+
+func GetOsHostName() string {
+	name, err := os.Hostname()
+
+	if err != nil {
+		DebugMessage <- err.Error()
+	}
+
+	return name
+}

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 
@@ -13,6 +14,7 @@ import (
 var (
 	red    = color.FgRed.Render
 	bold   = color.Bold.Render
+	blue   = color.FgBlue.Render
 	yellow = color.FgYellow.Render
 	g      *gocui.Gui
 	debug  = true
@@ -66,7 +68,7 @@ func layout(g *gocui.Gui) error {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
-		v.Title = "Hello"
+		v.Title = helper.UserName
 		v.Editable = true
 
 		if _, err = setCurrentViewOnTop(g, "textbox"); err != nil {
@@ -79,7 +81,7 @@ func layout(g *gocui.Gui) error {
 			return err
 		}
 		v.Frame = false
-		fmt.Fprint(v, yellow(bold("Help: ")), "Use ", yellow("/u <name>"), " to change name, ", yellow("/h <ip:port>"), " to connect to specific ip and ", yellow("CTRL+C"), " to quit!")
+		fmt.Fprint(v, yellow(bold("Help: ")), "Use ", yellow("/u <name>"), " to change name, ", yellow("/p <port>"), " to change port, ", yellow("/h <ip:port>"), " to connect to specific ip and ", yellow("CTRL+C"), " to quit!")
 	}
 
 	return nil
@@ -104,6 +106,10 @@ func debug_viewer() {
 
 func main() {
 	var err error
+	flag.StringVar(&helper.UserName, "name", helper.GetOsHostName(), "Choose Name, Defaults to os host name.")
+	flag.IntVar(&helper.Port, "port", 8080, "Port")
+
+	flag.Parse()
 	g, err = gocui.NewGui(gocui.OutputNormal)
 	if err != nil {
 		log.Panicln(err)
