@@ -17,7 +17,6 @@ var (
 	blue   = color.FgBlue.Render
 	yellow = color.FgYellow.Render
 	g      *gocui.Gui
-	debug  = true
 )
 
 func setCurrentViewOnTop(g *gocui.Gui, name string) (*gocui.View, error) {
@@ -101,7 +100,7 @@ func networkStarter() {
 }
 
 func debug_viewer() {
-	if debug {
+	if helper.Debug {
 		for {
 			debug_string := <-helper.DebugMessage
 			add_to_mesasge_box("debug", debug_string)
@@ -113,7 +112,8 @@ func main() {
 	var err error
 	flag.StringVar(&helper.UserName, "name", helper.GetOsHostName(), "Choose Name, Defaults to os host name.")
 	flag.IntVar(&helper.Port, "port", 8080, "Port")
-	flag.BoolVar(&helper.Local, "local", false, "Port")
+	flag.BoolVar(&helper.Local, "local", false, "use localaddress?")
+	flag.BoolVar(&helper.Debug, "debug", true, "show debug logs?")
 
 	flag.Parse()
 	g, err = gocui.NewGui(gocui.OutputNormal)

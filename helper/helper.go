@@ -4,6 +4,7 @@ import "os"
 
 var (
 	UserName     = ""
+	Debug        = false
 	Local        = false
 	Port         = 8080
 	DebugMessage = make(chan string)
