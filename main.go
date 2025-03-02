@@ -92,7 +92,12 @@ func quit(g *gocui.Gui, v *gocui.View) error {
 }
 
 func networkStarter() {
-	fmt.Println(peer.GetHostIPAddress())
+	ip := ""
+	if !helper.Local {
+		ip = peer.GetHostIPAddress()
+	}
+
+	go peer.Start(fmt.Sprintf("%s:%d", ip, helper.Port))
 }
 
 func debug_viewer() {
@@ -108,6 +113,7 @@ func main() {
 	var err error
 	flag.StringVar(&helper.UserName, "name", helper.GetOsHostName(), "Choose Name, Defaults to os host name.")
 	flag.IntVar(&helper.Port, "port", 8080, "Port")
+	flag.BoolVar(&helper.Local, "local", false, "Port")
 
 	flag.Parse()
 	g, err = gocui.NewGui(gocui.OutputNormal)
