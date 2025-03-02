@@ -25,8 +25,6 @@ func Start(addr string) {
 			break
 		}
 
-		helper.DebugMessage <- "Incomming Connection! \n"
-
 		go handleConnection(conn)
 
 	}
@@ -34,6 +32,7 @@ func Start(addr string) {
 
 func handleConnection(conn net.Conn) {
 	defer conn.Close()
+	helper.DebugMessage <- fmt.Sprintf("Connection opened by %s \n", conn.RemoteAddr())
 	scanner := bufio.NewScanner(conn)
 
 	for scanner.Scan() {
