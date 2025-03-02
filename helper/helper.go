@@ -10,6 +10,15 @@ var (
 	DebugMessage = make(chan string)
 )
 
+type Message struct {
+	Text string
+	Name string
+}
+type DisplayMessage struct {
+	Self bool
+	Message
+}
+
 func GetOsHostName() string {
 	name, err := os.Hostname()
 

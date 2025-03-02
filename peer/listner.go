@@ -36,8 +36,8 @@ func handleConnection(conn net.Conn) {
 	scanner := bufio.NewScanner(conn)
 
 	for scanner.Scan() {
-		text := scanner.Text()
-		helper.DebugMessage <- fmt.Sprintf("%s \n", text)
+		text := scanner.Bytes()
+		helper.DebugMessage <- fmt.Sprintf("%s \n", string(text))
 		// fmt.Printf("Received from %s: %s\n", conn.RemoteAddr(), text)
 	}
 
