@@ -78,6 +78,7 @@ func sendMessage(g *gocui.Gui, v *gocui.View) error {
 		commandSection(sending_message_content)
 		return nil
 	}
+	peer.Send(sending_message_content)
 
 	if err := add_to_mesasge_box("Hello", sending_message_content); err != nil {
 		return err

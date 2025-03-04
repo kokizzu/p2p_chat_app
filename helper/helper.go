@@ -2,6 +2,7 @@ package helper
 
 import (
 	"fmt"
+	"net"
 	"os"
 )
 
@@ -9,6 +10,7 @@ type HInfo struct {
 	Ip   string
 	Port string
 	Name string
+	Conn net.Conn
 }
 
 var (

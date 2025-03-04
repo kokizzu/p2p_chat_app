@@ -1,29 +1,30 @@
 package peer
 
 import (
-	"encoding/json"
 	"fmt"
-	"net"
 
 	"github.com/sairash/p2p_chat_app/helper"
 )
 
-func Send(address string, message string, name string) {
-	message_struct, err := json.Marshal(helper.Message{Text: message, Name: name})
-	if err != nil {
-		helper.DebugMessage <- "Couldn't send message due to json. \n"
-		return
-	}
-	conn, err := net.Dial("tcp", address)
-	if err != nil {
+// func ConnnectHost(address string) {
+// 	_, has := helper.ConnectedHosts[address]
 
-		helper.DebugMessage <- fmt.Sprintf("Couldn't send mesasge to %s because of %s \n", address, err.Error())
-		return
-	}
+// 	if has {
+// 		helper.MessageChan <- helper.DebugMessage(fmt.Sprintf("%s address already connected.", address), "ConnnectHost")
+// 		return
+// 	}
 
-	_, err = conn.Write(message_struct)
+// 	helper.MessageChan <- helper.DebugMessage(fmt.Sprintf("Connecting to address %s", address), "ConnnectHost")
 
-	if err != nil {
-		helper.DebugMessage <- fmt.Sprintf("Couldn't send mesasge to %s because of %s \n", address, err.Error())
+// 	helper.ConnectedHosts[address] = conn
+// }
+
+func Send(message string) {
+	for k, v := range helper.ConnectedHosts {
+		_, err := v.Conn.Write([]byte(message))
+
+		if err != nil {
+			helper.MessageChan <- helper.DebugMessage(fmt.Sprintf("Couldn't send mesasge to %s because of %s", k, err.Error()), "Send")
+		}
 	}
 }
