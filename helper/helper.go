@@ -1,13 +1,31 @@
 package helper
 
-import "os"
+import (
+	"fmt"
+	"os"
+)
+
+type HInfo struct {
+	Ip   string
+	Port string
+	Name string
+}
 
 var (
-	UserName     = ""
-	Debug        = false
-	Local        = false
-	Port         = 8080
-	DebugMessage = make(chan string)
+	IP          = ""
+	IPPORT      = ""
+	UserName    = ""
+	Local       = false
+	Port        = 8080
+	MessageChan = make(chan DisplayMessage)
+
+	ConnectedHosts = map[string]HInfo{}
+)
+
+const (
+	Debug = iota
+	Self
+	Peer
 )
 
 type Message struct {
@@ -15,7 +33,7 @@ type Message struct {
 	Name string
 }
 type DisplayMessage struct {
-	Self bool
+	TypeOfMessage uint
 	Message
 }
 
@@ -23,9 +41,20 @@ func GetOsHostName() string {
 	name, err := os.Hostname()
 
 	if err != nil {
-		DebugMessage <- err.Error()
+		MessageChan <- DebugMessage(err.Error(), "GetHostName")
 		panic(err)
 	}
 
 	return name
+}
+
+func DebugMessage(message string, from string) DisplayMessage {
+	return DisplayMessage{
+		TypeOfMessage: Debug,
+		Message: Message{
+			Text: fmt.Sprintf("%s \n", message),
+			Name: from,
+		},
+	}
+
 }
