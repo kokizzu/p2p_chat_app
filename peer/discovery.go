@@ -76,19 +76,13 @@ func listenForBroadcast(pc net.PacketConn) {
 	if peerAddress == helper.IPPORT {
 		return
 	}
-	if _, has := helper.ConnectedHosts[peerAddress]; !has {
-		conn, err := net.Dial("tcp", peerAddress)
-		if err != nil {
-			helper.MessageChan <- helper.DebugMessage(fmt.Sprintf("Couldn't connect to the address %s because of %s", peerAddress, err.Error()), "ConnnectHost")
-			return
+	if val, has := helper.ConnectedHosts[peerAddress]; !has {
+		helper.InitConn(peerAddress, ip, messageAttributes[0], messageAttributes[1])
+	} else {
+		one := make([]byte, 1)
+		if _, err := val.Conn.Read(one); err != nil {
+			helper.InitConn(peerAddress, ip, messageAttributes[0], messageAttributes[1])
 		}
-		helper.ConnectedHosts[peerAddress] = helper.HInfo{
-			Ip:   ip,
-			Port: messageAttributes[0],
-			Name: messageAttributes[1],
-			Conn: conn,
-		}
-		helper.MessageChan <- helper.DebugMessage(fmt.Sprintf("Discovered peer: %s", peerAddress), "listenForBroadcast")
 	}
 }
 

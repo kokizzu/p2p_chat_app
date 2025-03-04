@@ -39,6 +39,7 @@ func handleConnection(conn net.Conn) {
 		message, err := reader.ReadBytes('\n')
 		if err != nil {
 			helper.MessageChan <- helper.DebugMessage(fmt.Sprintf("Error reading from %s: %s \n", conn.RemoteAddr(), err.Error()), "handleConnection")
+
 			return
 		}
 
@@ -50,7 +51,6 @@ func handleConnection(conn net.Conn) {
 			helper.MessageChan <- helper.DebugMessage("Couldn't Structure Message.", "handleConnection")
 		}
 
-		helper.MessageChan <- helper.DebugMessage(fmt.Sprintf("Yooo!!: %s", conn.RemoteAddr().String()), "handleConnection")
 		helper.MessageChan <- helper.DisplayMessage{
 			Message: helper.Message{
 				Text: message_struct.Text,

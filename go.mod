@@ -5,6 +5,7 @@ go 1.24.0
 require (
 	github.com/gookit/color v1.5.4
 	github.com/jroimartin/gocui v0.5.0
+	github.com/kavu/go_reuseport v1.5.0
 )
 
 require (

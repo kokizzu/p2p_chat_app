@@ -50,10 +50,18 @@ func commandSection(command string) {
 		// connection to host
 		return
 	case 'l':
-		helper.MessageChan <- helper.DebugMessage("List of known hosts.", "commandSection")
+		reply := "List of known hosts. \n"
 
-		for k, _ := range helper.ConnectedHosts {
-			helper.MessageChan <- helper.DebugMessage(k, "commandSection")
+		for k := range helper.ConnectedHosts {
+			reply += "- " + k + "\n"
+		}
+
+		helper.MessageChan <- helper.DisplayMessage{
+			Message: helper.Message{
+				Text: reply,
+				Name: "commandSection",
+			},
+			TypeOfMessage: helper.ImportantDebug,
 		}
 
 		return
@@ -117,7 +125,7 @@ func layout(g *gocui.Gui) error {
 			return err
 		}
 		v.Frame = false
-		fmt.Fprint(v, yellow(bold("Help: ")), "Use ", yellow("/u <name>"), " to change name, ", yellow("/h <ip:port>"), " to connect to specific ip and ", yellow("CTRL+C"), " to quit!")
+		fmt.Fprint(v, yellow(bold("Help: ")), "Use ", yellow("/l"), " to list the connected peers.", yellow("CTRL+C"), " to quit!")
 	}
 
 	return nil
@@ -143,8 +151,8 @@ func message_value_addder() {
 		string_message := <-helper.MessageChan
 		if string_message.TypeOfMessage == helper.Peer {
 			add_to_mesasge_box(blue(bold(string_message.Name+" > ")), string_message.Message.Text)
-		} else if helper.Debug {
-			add_to_mesasge_box(red(bold("Debug > ")), string_message.Message.Text)
+		} else if helper.Debug || string_message.TypeOfMessage == helper.ImportantDebug {
+			add_to_mesasge_box(red(bold("Debug > ")), string_message.Message.Text+"\n")
 		}
 
 	}
@@ -154,7 +162,7 @@ func main() {
 	var err error
 	flag.StringVar(&helper.UserName, "name", helper.GetOsHostName(), "Choose Name, Defaults to os host name.")
 	flag.IntVar(&helper.Port, "port", 8080, "Port")
-	flag.BoolVar(&helper.Local, "local", false, "use localaddress?")
+	flag.BoolVar(&helper.Local, "local", false, "use local address?")
 	flag.BoolVar(&helper.Debug, "debug", false, "show debug logs?")
 
 	flag.Parse()
