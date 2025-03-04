@@ -18,6 +18,7 @@ var (
 	IPPORT      = ""
 	UserName    = ""
 	Local       = false
+	Debug       = false
 	Port        = 8080
 	MessageChan = make(chan DisplayMessage)
 
@@ -25,7 +26,7 @@ var (
 )
 
 const (
-	Debug = iota
+	DebugType = iota
 	Self
 	Peer
 )
@@ -33,10 +34,18 @@ const (
 type Message struct {
 	Text string
 	Name string
+	IP   string
 }
 type DisplayMessage struct {
 	TypeOfMessage uint
 	Message
+}
+
+func GetNameFromIP(addr string) string {
+	if in_val, in_has := ConnectedHosts[addr]; in_has {
+		return in_val.Name
+	}
+	return "Peer"
 }
 
 func GetOsHostName() string {
@@ -52,7 +61,7 @@ func GetOsHostName() string {
 
 func DebugMessage(message string, from string) DisplayMessage {
 	return DisplayMessage{
-		TypeOfMessage: Debug,
+		TypeOfMessage: DebugType,
 		Message: Message{
 			Text: fmt.Sprintf("%s \n", message),
 			Name: from,

@@ -2,6 +2,7 @@ package peer
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"net"
 
@@ -26,7 +27,6 @@ func Start(addr string) {
 		}
 
 		go handleConnection(conn)
-
 	}
 }
 
@@ -42,7 +42,22 @@ func handleConnection(conn net.Conn) {
 			return
 		}
 
-		helper.MessageChan <- helper.DebugMessage(string(message), "handleConnection")
+		message_struct := helper.Message{}
+
+		err = json.Unmarshal(message, &message_struct)
+
+		if err != nil {
+			helper.MessageChan <- helper.DebugMessage("Couldn't Structure Message.", "handleConnection")
+		}
+
+		helper.MessageChan <- helper.DebugMessage(fmt.Sprintf("Yooo!!: %s", conn.RemoteAddr().String()), "handleConnection")
+		helper.MessageChan <- helper.DisplayMessage{
+			Message: helper.Message{
+				Text: message_struct.Text,
+				Name: helper.GetNameFromIP(message_struct.IP),
+			},
+			TypeOfMessage: helper.Peer,
+		}
 		// fmt.Printf("[%s] Received: %s", conn.RemoteAddr(), message)
 	}
 

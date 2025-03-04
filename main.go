@@ -16,6 +16,7 @@ var (
 	bold   = color.Bold.Render
 	blue   = color.FgBlue.Render
 	yellow = color.FgYellow.Render
+	green  = color.FgGreen.Render
 	g      *gocui.Gui
 )
 
@@ -32,7 +33,7 @@ func add_to_mesasge_box(name string, message string) error {
 		return err
 
 	}
-	fmt.Fprint(out, red(bold(name+" > ")), message)
+	fmt.Fprint(out, name, message)
 
 	return nil
 }
@@ -80,7 +81,7 @@ func sendMessage(g *gocui.Gui, v *gocui.View) error {
 	}
 	peer.Send(sending_message_content)
 
-	if err := add_to_mesasge_box("Hello", sending_message_content); err != nil {
+	if err := add_to_mesasge_box(green(bold(helper.UserName+" > ")), sending_message_content); err != nil {
 		return err
 	}
 
@@ -140,7 +141,12 @@ func networkStarter() {
 func message_value_addder() {
 	for {
 		string_message := <-helper.MessageChan
-		add_to_mesasge_box("debug", string_message.Message.Text)
+		if string_message.TypeOfMessage == helper.Peer {
+			add_to_mesasge_box(blue(bold(string_message.Name+" > ")), string_message.Message.Text)
+		} else if helper.Debug {
+			add_to_mesasge_box(red(bold("Debug > ")), string_message.Message.Text)
+		}
+
 	}
 }
 
@@ -149,7 +155,7 @@ func main() {
 	flag.StringVar(&helper.UserName, "name", helper.GetOsHostName(), "Choose Name, Defaults to os host name.")
 	flag.IntVar(&helper.Port, "port", 8080, "Port")
 	flag.BoolVar(&helper.Local, "local", false, "use localaddress?")
-	// flag.BoolVar(&helper.Debug, "debug", true, "show debug logs?")
+	flag.BoolVar(&helper.Debug, "debug", false, "show debug logs?")
 
 	flag.Parse()
 	g, err = gocui.NewGui(gocui.OutputNormal)
