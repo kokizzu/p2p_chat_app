@@ -31,6 +31,6 @@ Or Build and run the application
 go build -o p2p
 ```
 ```sh
-./p2p
+./p2p  -name sai -port 8080 -local false -debug false
 ```
 Repeat the same thing in another terminal or computer and enjoy talking peer to peer.
