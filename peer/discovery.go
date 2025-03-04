@@ -70,7 +70,7 @@ func listenForBroadcast(pc net.PacketConn) {
 	}
 
 	ip := remoteAddr.IP.String()
-	peerAddress := fmt.Sprintf("%s:%s", ip, messageAttributes[0])
+	peerAddress := ip + ":" + messageAttributes[0]
 
 	// Add peer to connected hosts
 	if peerAddress == helper.IPPORT {
