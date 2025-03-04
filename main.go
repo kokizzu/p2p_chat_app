@@ -37,17 +37,52 @@ func add_to_mesasge_box(name string, message string) error {
 	return nil
 }
 
-func nextView(g *gocui.Gui, v *gocui.View) error {
+func commandSection(command string) {
+
+	switch command[1] {
+	case 'h':
+
+		// output := strings.TrimPrefix(command, "/h ")
+
+		// peer.ConnnectHost(output)
+		// chewang do;,a tamang is a gir; amd i and kme wow ownfocommand
+		// connection to host
+		return
+	case 'l':
+		helper.MessageChan <- helper.DebugMessage("List of known hosts.", "commandSection")
+
+		for k, _ := range helper.ConnectedHosts {
+			helper.MessageChan <- helper.DebugMessage(k, "commandSection")
+		}
+
+		return
+	case 'u':
+		// username
+		return
+	default:
+		// Error command message
+		helper.MessageChan <- helper.DebugMessage("Command not available.", "commandSection")
+	}
+}
+
+func sendMessage(g *gocui.Gui, v *gocui.View) error {
+	defer v.Clear()
+	defer v.SetCursor(0, 0)
+
 	sending_message_content := v.ViewBuffer()
 	if sending_message_content == "" {
 		return nil
 	}
+
+	if sending_message_content[0] == '/' {
+		commandSection(sending_message_content)
+		return nil
+	}
+
 	if err := add_to_mesasge_box("Hello", sending_message_content); err != nil {
 		return err
 	}
 
-	v.Clear()
-	v.SetCursor(0, 0)
 	return nil
 }
 
@@ -80,7 +115,7 @@ func layout(g *gocui.Gui) error {
 			return err
 		}
 		v.Frame = false
-		fmt.Fprint(v, yellow(bold("Help: ")), "Use ", yellow("/u <name>"), " to change name, ", yellow("/p <port>"), " to change port, ", yellow("/h <ip:port>"), " to connect to specific ip and ", yellow("CTRL+C"), " to quit!")
+		fmt.Fprint(v, yellow(bold("Help: ")), "Use ", yellow("/u <name>"), " to change name, ", yellow("/h <ip:port>"), " to connect to specific ip and ", yellow("CTRL+C"), " to quit!")
 	}
 
 	return nil
@@ -91,20 +126,20 @@ func quit(g *gocui.Gui, v *gocui.View) error {
 }
 
 func networkStarter() {
-	ip := ""
 	if !helper.Local {
-		ip = peer.GetHostIPAddress()
+		helper.IP = peer.GetHostIPAddressV4()
 	}
 
-	go peer.Start(fmt.Sprintf("%s:%d", ip, helper.Port))
+	helper.IPPORT = fmt.Sprintf("%s:%d", helper.IP, helper.Port)
+
+	go peer.Start(helper.IPPORT)
+	go peer.StartDiscovery()
 }
 
-func debug_viewer() {
-	if helper.Debug {
-		for {
-			debug_string := <-helper.DebugMessage
-			add_to_mesasge_box("debug", debug_string)
-		}
+func message_value_addder() {
+	for {
+		string_message := <-helper.MessageChan
+		add_to_mesasge_box("debug", string_message.Message.Text)
 	}
 }
 
@@ -113,7 +148,7 @@ func main() {
 	flag.StringVar(&helper.UserName, "name", helper.GetOsHostName(), "Choose Name, Defaults to os host name.")
 	flag.IntVar(&helper.Port, "port", 8080, "Port")
 	flag.BoolVar(&helper.Local, "local", false, "use localaddress?")
-	flag.BoolVar(&helper.Debug, "debug", true, "show debug logs?")
+	// flag.BoolVar(&helper.Debug, "debug", true, "show debug logs?")
 
 	flag.Parse()
 	g, err = gocui.NewGui(gocui.OutputNormal)
@@ -122,7 +157,7 @@ func main() {
 	}
 	defer g.Close()
 
-	go debug_viewer()
+	go message_value_addder()
 	go networkStarter()
 
 	g.Highlight = true
@@ -135,7 +170,7 @@ func main() {
 		log.Panicln(err)
 	}
 
-	if err := g.SetKeybinding("textbox", gocui.KeyEnter, gocui.ModNone, nextView); err != nil {
+	if err := g.SetKeybinding("textbox", gocui.KeyEnter, gocui.ModNone, sendMessage); err != nil {
 		log.Panicln(err)
 	}
 
